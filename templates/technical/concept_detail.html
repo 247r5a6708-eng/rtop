@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ concept.title }} — CS Concepts{% endblock %}
+{% block content %}
+<p><a href="{% url 'technical:concept_list' %}">← Back to all Concepts</a></p>
+
+<div class="card">
+  <div class="level">#{{ concept.rank }} · {{ concept.get_domain_display }} · {{ concept.level }}</div>
+  <h2 style="margin-top:6px;">{{ concept.title }}</h2>
+  <p style="white-space:pre-wrap;line-height:1.6;">{{ concept.explanation }}</p>
+
+  {% if concept.example %}
+  <h3>✏️ Example</h3>
+  <div class="example-box" style="font-size:.95rem;white-space:pre-wrap;">{{ concept.example }}</div>
+  {% endif %}
+
+  {% if concept.flowchart_mermaid %}
+  <h3>🔀 Flowchart</h3>
+  <div class="mermaid">{{ concept.flowchart_mermaid }}</div>
+  {% endif %}
+
+  {% if concept.reference_url %}
+  <p style="margin-top:16px;">
+    <a class="btn outline" href="{{ concept.reference_url }}" target="_blank" rel="noopener">📖 Read the full article on GeeksforGeeks ↗</a>
+  </p>
+  {% endif %}
+</div>
+
+<div class="card" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+  {% if prev_concept %}
+    <a class="btn outline" href="{% url 'technical:concept_detail' prev_concept.rank %}">← #{{ prev_concept.rank }} {{ prev_concept.title }}</a>
+  {% else %}
+    <span></span>
+  {% endif %}
+  {% if next_concept %}
+    <a class="btn" href="{% url 'technical:concept_detail' next_concept.rank %}">{{ next_concept.title }} #{{ next_concept.rank }} →</a>
+  {% endif %}
+</div>
+{% block extra_js %}
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ startOnLoad: true, theme: "{% if active_theme == 'dark' %}dark{% else %}default{% endif %}" });
+  }
+</script>
+{% endblock %}
+{% endblock %}

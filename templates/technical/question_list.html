@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Technical Questions{% endblock %}
+{% block content %}
+<h2>💻 Technical Questions — 500</h2>
+<p style="color:var(--text-dim);">{{ done }}/{{ total }} answered · {{ pct }}%</p>
+<div class="progress-bar" style="margin-bottom:20px;"><div style="width:{{ pct }}%;"></div></div>
+{% for domain, questions in domains.items %}
+<div class="card">
+  <h3>{{ domain }}</h3>
+  <table>
+  <thead><tr><th>Done</th><th>Question</th><th>Difficulty</th><th>Source</th><th>Link</th></tr></thead>
+  <tbody>
+  {% for q in questions %}
+  <tr>
+    <td><input type="checkbox" class="checkbox-solved" data-url="{% url 'technical:toggle_question' q.id %}" {% if q.id in solved_ids %}checked{% endif %}></td>
+    <td>{{ q.question }}</td>
+    <td><span class="badge {{ q.difficulty }}">{{ q.difficulty }}</span></td>
+    <td><span class="badge source">{{ q.source }}</span></td>
+    <td><a href="{{ q.link }}" target="_blank" rel="noopener">Open ↗</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+</div>
+{% endfor %}
+{% endblock %}

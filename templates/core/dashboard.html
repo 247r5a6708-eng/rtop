@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Road to One Piece{% endblock %}
+{% block content %}
+
+{% if profile.is_pirate_king %}
+<div class="king-banner">👑 CONGRATULATIONS, {{ user.username|upper }}! YOU HAVE BECOME THE KING OF THE PIRATES! 👑<br>
+<span style="font-size:.85rem;font-weight:400;">You conquered every DSA, Aptitude and Technical question. Crowned on {{ profile.crowned_at|date:"d M Y" }}.</span>
+</div>
+{% endif %}
+
+{% if daily_quote %}
+<div class="card" style="border-left:4px solid var(--accent-bright);">
+  <div style="font-size:.75rem;letter-spacing:.05em;color:var(--text-dim);text-transform:uppercase;">🍖 One Piece Quote of the Day</div>
+  <p style="font-style:italic;font-size:1.05rem;margin:6px 0 2px;">"{{ daily_quote.text }}"</p>
+  {% if daily_quote.speaker %}<p style="color:var(--text-dim);font-size:.85rem;margin:0;">— {{ daily_quote.speaker }}</p>{% endif %}
+</div>
+{% endif %}
+
+<h2 style="color:var(--accent-bright);">Ahoy, {{ user.username }}! 🏴‍☠️</h2>
+<p style="color:var(--text-dim);">Overall conquest progress: <strong>{{ overall_pct }}%</strong></p>
+<div class="progress-bar" style="margin-bottom:14px;"><div style="width:{{ overall_pct }}%;"></div></div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
+  <span class="coin-pill">🪙 {{ profile.coins }} coins</span>
+  <span class="streak-pill">🔥 {{ streak }} day streak</span>
+  <span class="streak-pill">📅 {{ total_active_days }} active days{% if next_milestone %} · next badge at {{ next_milestone }}{% endif %}</span>
+  <a href="{% url 'core:profile' %}" class="btn outline" style="font-size:.82rem;padding:6px 14px;">View Profile & Badges →</a>
+</div>
+
+<div class="grid grid-4">
+  <div class="stat-card">
+    <div class="num">{{ dsa_done }}/{{ dsa_total }}</div>
+    <div class="label">DSA Solved</div>
+    <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ dsa_pct }}%;"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ apti_done }}/{{ apti_total }}</div>
+    <div class="label">Aptitude Solved</div>
+    <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ apti_pct }}%;"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ tech_done }}/{{ tech_total }}</div>
+    <div class="label">Technical Solved</div>
+    <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ tech_pct }}%;"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ interview_done }}/{{ interview_total }}</div>
+    <div class="label">Interview Checklist</div>
+    <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ interview_pct }}%;"></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>🗓️ Daily Challenge — solve today's 3 picks to keep your streak alive</h3>
+  <p style="color:var(--text-dim);font-size:.82rem;margin-top:-6px;">Your next pick from DSA, Aptitude, and Technical — always in curriculum order (e.g. Array before Two Pointers). Solving one advances you to the next; nothing is ever picked randomly.</p>
+
+  {% if daily_dsa %}
+  <div class="daily-row {% if daily_dsa_solved %}solved{% endif %}">
+    <div>
+      <div class="daily-title">⚔️ DSA: {{ daily_dsa.title }}</div>
+      <div class="daily-meta">{{ daily_dsa.pattern.name }} · <span class="badge {{ daily_dsa.difficulty }}">{{ daily_dsa.difficulty }}</span></div>
+    </div>
+    <div class="daily-actions">
+      <a href="{{ daily_dsa.link }}" target="_blank" rel="noopener">Open ↗</a>
+      <input type="checkbox" class="checkbox-solved" data-url="{% url 'dsa:toggle_question' daily_dsa.id %}" {% if daily_dsa_solved %}checked{% endif %}>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if daily_apti %}
+  <div class="daily-row {% if daily_apti_solved %}solved{% endif %}">
+    <div>
+      <div class="daily-title">🧮 Aptitude: {{ daily_apti.question|truncatechars:70 }}</div>
+      <div class="daily-meta">{{ daily_apti.topic.name }} · <span class="badge {{ daily_apti.difficulty }}">{{ daily_apti.difficulty }}</span></div>
+    </div>
+    <div class="daily-actions">
+      <a href="{{ daily_apti.link }}" target="_blank" rel="noopener">Open ↗</a>
+      <input type="checkbox" class="checkbox-solved" data-url="{% url 'aptitude:toggle_problem' daily_apti.id %}" {% if daily_apti_solved %}checked{% endif %}>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if daily_tech %}
+  <div class="daily-row {% if daily_tech_solved %}solved{% endif %}">
+    <div>
+      <div class="daily-title">💻 Technical: {{ daily_tech.question|truncatechars:70 }}</div>
+      <div class="daily-meta">{{ daily_tech.get_domain_display }} · <span class="badge {{ daily_tech.difficulty }}">{{ daily_tech.difficulty }}</span></div>
+    </div>
+    <div class="daily-actions">
+      <a href="{{ daily_tech.link }}" target="_blank" rel="noopener">Open ↗</a>
+      <input type="checkbox" class="checkbox-solved" data-url="{% url 'technical:toggle_question' daily_tech.id %}" {% if daily_tech_solved %}checked{% endif %}>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>📅 Voyage Log — Activity Calendar</h3>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-top:-6px;">Last 365 days · <strong id="calTotal" style="color:var(--accent-bright);">0</strong> total logged activities</p>
+  <div class="cal-wrap">
+    <div id="calendar-heatmap"></div>
+  </div>
+  {{ calendar_data|json_script:"calendar-data" }}
+  <div class="cal-legend">
+    <span>Less</span>
+    <span class="cal-day" data-level="0"></span>
+    <span class="cal-day" data-level="1"></span>
+    <span class="cal-day" data-level="2"></span>
+    <span class="cal-day" data-level="3"></span>
+    <span class="cal-day" data-level="4"></span>
+    <span>More</span>
+    <span style="margin-left:auto;">Hover a square for the exact date</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>⚔️ Continue your journey</h3>
+    <p><a href="{% url 'dsa:pattern_list' %}">→ DSA Patterns (500 Qs)</a></p>
+    <p><a href="{% url 'aptitude:topic_list' %}">→ Aptitude Topics (500 Qs)</a></p>
+    <p><a href="{% url 'technical:concept_list' %}">→ CS Concepts (100)</a></p>
+    <p><a href="{% url 'technical:question_list' %}">→ Technical Questions (500)</a></p>
+    <p><a href="{% url 'interview:question_list' %}">→ Top 150 Interview Qs</a></p>
+  </div>
+  <div class="card">
+    <h3>🏴‍☠️ Your Bounty Poster</h3>
+    <p>Username: <strong>{{ user.username }}</strong></p>
+    <p>Email: {{ user.email }}</p>
+    <p>Status: {% if profile.is_pirate_king %}<strong style="color:var(--gold-bright);">King of the Pirates 👑</strong>{% else %}Rookie Pirate — {{ overall_pct }}% conquered{% endif %}</p>
+    {% if recent_badges %}
+    <p style="margin-bottom:6px;">Recent badges:</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      {% for b in recent_badges %}<span class="badge source">🏆 {{ b.title }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    <p style="margin-top:12px;"><a href="{% url 'core:profile' %}">Edit profile & view all badges →</a></p>
+  </div>
+</div>
+
+{% endblock %}

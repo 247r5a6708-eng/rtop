@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Login — Road to One Piece{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>🏴‍☠️ Welcome Back, Nakama</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label for="id_username">Username or Email</label>
+        <input type="text" name="username" id="id_username" required>
+      </div>
+      <div class="field">
+        <label for="id_password">Password</label>
+        <div class="password-wrap">
+          <input type="password" name="password" id="id_password" required>
+          <button type="button" class="toggle-pass" data-target="id_password">SHOW</button>
+        </div>
+      </div>
+      <button type="submit" class="btn" style="width:100%;">Login</button>
+    </form>
+    <div class="auth-links">
+      <a href="{% url 'accounts:password_reset' %}">Forgot password?</a><br><br>
+      New pirate? <a href="{% url 'accounts:register' %}">Register here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

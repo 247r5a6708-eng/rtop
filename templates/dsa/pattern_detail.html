@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ pattern.name }}{% endblock %}
+{% block content %}
+<h2>⚔️ {{ pattern.name }}</h2>
+<p style="color:var(--text-dim);">{{ pattern.description }}</p>
+<div class="card">
+<table>
+<thead><tr><th>#</th><th>Solved</th><th>Title</th><th>Difficulty</th><th>Source</th><th>Link</th></tr></thead>
+<tbody>
+{% for q in questions %}
+<tr>
+  <td>{{ forloop.counter }}</td>
+  <td><input type="checkbox" class="checkbox-solved" data-url="{% url 'dsa:toggle_question' q.id %}" {% if q.id in solved_ids %}checked{% endif %}></td>
+  <td>{{ q.title }}</td>
+  <td><span class="badge {{ q.difficulty }}">{{ q.difficulty }}</span></td>
+  <td><span class="badge source">{{ q.source }}</span></td>
+  <td><a href="{{ q.link }}" target="_blank" rel="noopener">Open ↗</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<a href="{% url 'dsa:pattern_list' %}" class="btn outline">← Back to Patterns</a>
+{% endblock %}

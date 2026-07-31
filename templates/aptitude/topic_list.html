@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Aptitude Topics{% endblock %}
+{% block content %}
+<h2>🧮 Aptitude — 500 Problems</h2>
+<p style="color:var(--text-dim);">Basic → Advanced, with concept notes, worked examples, and practice problems.</p>
+<div class="grid grid-3">
+{% for d in topics %}
+  <div class="card">
+    <h3>{{ d.topic.name }}</h3>
+    <p style="color:var(--text-dim);font-size:.8rem;">Level: {{ d.topic.level }}</p>
+    <div class="progress-bar"><div style="width:{{ d.pct }}%;"></div></div>
+    <p style="font-size:.85rem;margin:8px 0;">{{ d.done }}/{{ d.total }} solved</p>
+    <a href="{% url 'aptitude:topic_detail' d.topic.slug %}" class="btn">Learn & Practice</a>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

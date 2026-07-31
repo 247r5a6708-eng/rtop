@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }}{% endblock %}
+{% block content %}
+<h2>🧮 {{ topic.name }} <span style="font-size:.9rem;color:var(--text-dim);">({{ topic.level }})</span></h2>
+
+<div class="card concept-card">
+  <h3>📘 Concept</h3>
+  <div class="level">{{ topic.level }}</div>
+  <pre style="white-space:pre-wrap;font-family:inherit;">{{ topic.concept }}</pre>
+</div>
+
+<div class="card concept-card">
+  <h3>✏️ Worked Example</h3>
+  <pre style="white-space:pre-wrap;font-family:inherit;">{{ topic.example }}</pre>
+</div>
+
+<div class="card">
+<h3>Practice Problems</h3>
+<table>
+<thead><tr><th>#</th><th>Solved</th><th>Question</th><th>Difficulty</th><th>Source</th><th>Link</th></tr></thead>
+<tbody>
+{% for p in problems %}
+<tr>
+  <td>{{ forloop.counter }}</td>
+  <td><input type="checkbox" class="checkbox-solved" data-url="{% url 'aptitude:toggle_problem' p.id %}" {% if p.id in solved_ids %}checked{% endif %}></td>
+  <td>{{ p.question }}{% if p.answer_hint %}<br><span style="color:var(--text-dim);font-size:.78rem;">Hint: {{ p.answer_hint }}</span>{% endif %}</td>
+  <td><span class="badge {{ p.difficulty }}">{{ p.difficulty }}</span></td>
+  <td><span class="badge source">{{ p.source }}</span></td>
+  <td><a href="{{ p.link }}" target="_blank" rel="noopener">Open ↗</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<a href="{% url 'aptitude:topic_list' %}" class="btn outline">← Back to Topics</a>
+{% endblock %}

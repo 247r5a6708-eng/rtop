@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}DSA Patterns{% endblock %}
+{% block content %}
+<h2>⚔️ DSA Patterns — 500 Questions</h2>
+<p style="color:var(--text-dim);">25 patterns × 20 questions each. All sourced from LeetCode / GeeksforGeeks.</p>
+<div class="grid grid-3">
+{% for d in patterns %}
+  <div class="card">
+    <h3>{{ d.pattern.name }}</h3>
+    <p style="color:var(--text-dim);font-size:.85rem;">{{ d.pattern.description }}</p>
+    <div class="progress-bar"><div style="width:{{ d.pct }}%;"></div></div>
+    <p style="font-size:.85rem;margin:8px 0;">{{ d.done }}/{{ d.total }} solved</p>
+    <a href="{% url 'dsa:pattern_detail' d.pattern.slug %}" class="btn">Practice</a>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

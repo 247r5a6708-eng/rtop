@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}My Bounty Poster — Profile{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="profile-header">
+    {% if profile.avatar %}
+      <img class="profile-avatar-lg" src="{{ profile.avatar.url }}" alt="{{ user.username }}">
+    {% else %}
+      <div class="profile-avatar-placeholder">🏴‍☠️</div>
+    {% endif %}
+    <div>
+      <h2 style="margin:0;">{{ user.username }}</h2>
+      <p style="color:var(--text-dim);margin:4px 0;">{{ profile.bio }}</p>
+      <p style="color:var(--text-dim);font-size:.82rem;margin:0;">Nakama since {{ user.date_joined|date:"d M Y" }}</p>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+    <span class="coin-pill">🪙 {{ profile.coins }} coins</span>
+    <span class="streak-pill">🔥 {{ streak }} day streak</span>
+    <span class="streak-pill">📅 {{ total_active_days }} active days</span>
+    {% if profile.is_pirate_king %}<span class="streak-pill">👑 King of the Pirates</span>{% endif %}
+  </div>
+</div>
+
+{% if nakama_quote %}
+<div class="card" style="border-left:4px solid var(--danger, #c0392b);">
+  <div style="font-size:.75rem;letter-spacing:.05em;color:var(--text-dim);text-transform:uppercase;">⚔️ Nakama Quote of the Day — Attack on Titan</div>
+  <p style="font-style:italic;font-size:1.05rem;margin:6px 0 2px;">"{{ nakama_quote.text }}"</p>
+  {% if nakama_quote.speaker %}<p style="color:var(--text-dim);font-size:.85rem;margin:0;">— {{ nakama_quote.speaker }}</p>{% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>✏️ Edit Bounty Poster</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="profile">
+    <div class="field">
+      <label for="{{ form.avatar.id_for_label }}">Profile Image</label>
+      {% if profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="current avatar" style="width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;margin-bottom:8px;">
+      {% endif %}
+      {{ form.avatar }}
+      {{ form.avatar.errors }}
+      <p style="color:var(--text-dim);font-size:.78rem;margin-top:4px;">Uploading a new image replaces and permanently removes the old one.</p>
+    </div>
+    <div class="field">
+      <label for="{{ form.bio.id_for_label }}">Bio</label>
+      {{ form.bio }}
+      {{ form.bio.errors }}
+    </div>
+    <button type="submit" class="btn">Save Changes</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📧 Change Email</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_email">
+    <div class="field">
+      <label for="{{ email_form.email.id_for_label }}">New Email</label>
+      {{ email_form.email }}
+      {{ email_form.email.errors }}
+    </div>
+    <div class="field">
+      <label for="{{ email_form.current_password.id_for_label }}">Current Password</label>
+      {{ email_form.current_password }}
+      {{ email_form.current_password.errors }}
+    </div>
+    <button type="submit" class="btn">Update Email</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>🔒 Change Password</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_password">
+    <div class="field">
+      <label for="{{ password_form.old_password.id_for_label }}">Current Password</label>
+      {{ password_form.old_password }}
+      {{ password_form.old_password.errors }}
+    </div>
+    <div class="field">
+      <label for="{{ password_form.new_password1.id_for_label }}">New Password</label>
+      {{ password_form.new_password1 }}
+      {{ password_form.new_password1.errors }}
+    </div>
+    <div class="field">
+      <label for="{{ password_form.new_password2.id_for_label }}">Confirm New Password</label>
+      {{ password_form.new_password2 }}
+      {{ password_form.new_password2.errors }}
+    </div>
+    <button type="submit" class="btn">Update Password</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>🏅 One Piece Voyage Badges</h3>
+  <p style="color:var(--text-dim);font-size:.85rem;">A new badge unlocks every 50 days you log activity on your Voyage Log.</p>
+  <div class="badge-grid">
+    {% for b in badge_board %}
+      <div class="badge-tile {% if b.earned %}earned{% else %}locked{% endif %}">
+        <div class="badge-icon">{% if b.earned %}🏆{% else %}🔒{% endif %}</div>
+        <div class="badge-title">{{ b.title }}</div>
+        <div class="badge-day">Day {{ b.milestone }}</div>
+        <div class="badge-desc">{{ b.description }}</div>
+        {% if b.earned %}<div class="badge-day">Earned {{ b.awarded_at|date:"d M Y" }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <h3>🛠️ Streak Repair</h3>
+  <p style="color:var(--text-dim);font-size:.85rem;">
+    Missed a day? Spend <strong>{{ repair_cost }} coins</strong> to patch a missed day on your Voyage Log calendar
+    and keep your streak alive — just like a LeetCode streak freeze.
+  </p>
+  {% if missed_days %}
+  <form method="post" action="{% url 'core:restore_streak' %}">
+    {% csrf_token %}
+    <div class="field">
+      <label for="repair_date">Choose a missed day (last 60 days)</label>
+      <select name="date" id="repair_date">
+        {% for d in missed_days %}
+          <option value="{{ d|date:'Y-m-d' }}">{{ d|date:"D, d M Y" }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn" {% if profile.coins < repair_cost %}disabled{% endif %}>
+      Repair for {{ repair_cost }} coins
+    </button>
+    {% if profile.coins < repair_cost %}
+      <p style="color:var(--danger);font-size:.8rem;margin-top:6px;">You need {{ repair_cost }} coins — keep solving to earn more!</p>
+    {% endif %}
+  </form>
+  {% else %}
+    <p style="color:var(--text-dim);">No missed days in the last 60 — your streak is spotless, nakama! 🎉</p>
+  {% endif %}
+</div>
+
+{% endblock %}

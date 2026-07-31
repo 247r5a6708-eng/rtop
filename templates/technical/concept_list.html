@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}CS Concepts{% endblock %}
+{% block content %}
+<h2>📚 Technical Concepts — Learn Basic to Advanced (100)</h2>
+<p style="color:var(--text-dim);">OOP · DBMS · OS · Computer Networks · Software Engineering · System Design — every concept explained with a real-world example, ordered Basic → Intermediate → Advanced. Click a concept to open its full learning page.</p>
+
+<div class="card" style="padding:14px 20px;">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <a href="{% url 'technical:concept_list' %}" class="btn {% if not selected_domain %}outline{% endif %}" style="font-size:.8rem;padding:6px 12px;">All</a>
+    {% for code, label in domains %}
+      <a href="?domain={{ code }}" class="btn {% if selected_domain != code %}outline{% endif %}" style="font-size:.8rem;padding:6px 12px;">{{ label }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="grid grid-3">
+  {% for c in page_obj %}
+  <div class="card" style="margin-bottom:0;">
+    <div class="concept-card">
+      <div class="level">#{{ c.rank }} · {{ c.get_domain_display }} · {{ c.level }}</div>
+      <h4><a href="{% url 'technical:concept_detail' c.rank %}">{{ c.title }}</a></h4>
+      <p>{{ c.explanation|truncatewords:22 }}</p>
+      <a href="{% url 'technical:concept_detail' c.rank %}" class="btn outline" style="font-size:.8rem;padding:6px 12px;">Learn this concept →</a>
+    </div>
+  </div>
+  {% empty %}
+  <p style="color:var(--text-dim);">No concepts found.</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="card" style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;">
+  {% if page_obj.has_previous %}
+    <a class="btn outline" href="?page={{ page_obj.previous_page_number }}{% if selected_domain %}&domain={{ selected_domain }}{% endif %}">← Prev</a>
+  {% endif %}
+  {% for num in page_obj.paginator.page_range %}
+    {% if num == page_obj.number %}
+      <span class="btn" style="cursor:default;">{{ num }}</span>
+    {% else %}
+      <a class="btn outline" href="?page={{ num }}{% if selected_domain %}&domain={{ selected_domain }}{% endif %}">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+    <a class="btn outline" href="?page={{ page_obj.next_page_number }}{% if selected_domain %}&domain={{ selected_domain }}{% endif %}">Next →</a>
+  {% endif %}
+</div>
+<p style="text-align:center;color:var(--text-dim);font-size:.85rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} · {{ page_obj.paginator.count }} concepts</p>
+{% endif %}
+
+{% endblock %}

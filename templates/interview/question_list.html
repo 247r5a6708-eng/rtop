@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Top 150 DSA Interview Questions{% endblock %}
+{% block content %}
+<h2>🎤 Top 150 Most-Asked DSA Interview Questions</h2>
+<p style="color:var(--text-dim);">Curated must-solve list, grouped by pattern. All problems link directly to LeetCode.</p>
+<p style="color:var(--text-dim);">{{ done }}/{{ total }} marked · {{ pct }}%</p>
+<div class="progress-bar" style="margin-bottom:20px;"><div style="width:{{ pct }}%;"></div></div>
+
+{% regroup questions by topic as topic_list %}
+{% for group in topic_list %}
+<div class="card">
+  <h3>{{ group.grouper }}</h3>
+  <table>
+  <thead><tr><th>Rank</th><th>Marked</th><th>Question</th><th>Source</th><th>Link</th></tr></thead>
+  <tbody>
+  {% for q in group.list %}
+  <tr>
+    <td>{{ q.rank }}</td>
+    <td><input type="checkbox" class="checkbox-solved" data-url="{% url 'interview:toggle_question' q.id %}" {% if q.id in marked_ids %}checked{% endif %}></td>
+    <td>{{ q.question }}</td>
+    <td><span class="badge source">{{ q.source }}</span></td>
+    <td>{% if q.link %}<a href="{{ q.link }}" target="_blank" rel="noopener">Open ↗</a>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+</div>
+{% endfor %}
+{% endblock %}

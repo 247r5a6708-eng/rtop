@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Road to One Piece — Placement Prep{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="hero-flags">☠ ⚓ ☠</div>
+  <h1>ROAD TO ONE PIECE</h1>
+  <p>Your end-to-end placement preparation log: DSA patterns, Aptitude, CS Core concepts and Top Interview
+     questions — tracked like a pirate's logbook. Solve everything. Claim the title of
+     <strong>King of the Pirates</strong>.</p>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+    <a href="{% url 'accounts:register' %}" class="btn">Set Sail — Register</a>
+    <a href="{% url 'accounts:login' %}" class="btn outline">Login</a>
+  </div>
+</div>
+
+<div class="grid grid-4">
+  <div class="stat-card"><div class="num">500</div><div class="label">DSA Questions · 25 Patterns</div></div>
+  <div class="stat-card"><div class="num">150</div><div class="label">Top Interview Questions</div></div>
+  <div class="stat-card"><div class="num">500</div><div class="label">Aptitude Problems</div></div>
+  <div class="stat-card"><div class="num">100+500</div><div class="label">CS Concepts + Questions</div></div>
+</div>
+{% endblock %}
