@@ -28,6 +28,16 @@ else:
     # silently accepting requests for any Host header.
     ALLOWED_HOSTS = []
 
+# Django's CSRF protection requires the exact scheme+host of any site
+# that's allowed to submit forms here. Without this, login/register/reset
+# forms fail with "CSRF verification failed" in production, even with
+# ALLOWED_HOSTS set correctly — the two settings check different things.
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{h}' for h in ALLOWED_HOSTS if h and h != '*'
+] + [
+    f'http://{h}' for h in ALLOWED_HOSTS if h and h != '*'
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
